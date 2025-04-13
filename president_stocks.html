@@ -1,0 +1,629 @@
+<!-- stock data frontend -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Comparing the performance of major stock market indices under recent presidents</title>
+	<!-- libraries -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/snap.svg/0.5.1/snap.svg-min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-csv/1.0.21/jquery.csv.min.js"></script>
+	
+	<!-- fonts -->
+	<script src="https://kit.fontawesome.com/8e22f64061.js" crossorigin="anonymous"></script>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<style>
+		body {font-family:Arial,Helvetica;margin-bottom:100px;margin-top:50px}
+		svg{display:inline;position:relative}
+		h3{font-weight:600;margin-bottom:0px}
+		h4{font-weight:500;margin-top:5px}
+		h1{margin-bottom:5px}
+		.text_container {width:100%;max-width:600px;text-align:left;font-family:Rubik;font-weight:400;font-size:100%;line-height:1.3;margin:auto}
+		.svg_container {width:100%;max-width:800px;margin:auto;margin-top:30px;margin-bottom:30px}
+		.inline_svgs{display:inline-block;width:100%;position:relative}
+		.tooltip{font-size:80%;z-index:200;font-weight:200;text-align:left;padding:6px 8px 6px 8px;border-radius:2px;top:-9999px;background:rgba(0,0,0,.8);border:1px solid white;color:white;font-family:'Rubik';position: fixed;max-width:280px;}
+		.keyholder{font-size:70%;line-height:190%;max-width:800px;margin:auto;margin-bottom:35px;margin-top:30px}
+		.biden1{background-color:#006ba6}
+		.trump2{background-color:#f6511d}
+		.keylabel{display:inline;vertical-align:middle;line-height:1;margin-right:15px}
+		.keylabelholder{display:inline;white-space:nowrap}
+		.keyline{height:2px;width:20px;display:inline-block;vertical-align:middle;text-align:center;margin-right:5px}
+		.keybox{height:15px;width:15px;display:inline-block;vertical-align:middle;text-align:center;margin-right:5px}
+		.ttip_keyholder{vertical-align:middle;margin-left:10px;margin-top:5px;line-height:140%}
+		.ttip_keylabel{display:inline;vertical-align:middle}
+		.ttip_keyline{height:2px;width:10px;vertical-align:middle;display:inline-block}
+		.ttip_keybox{height:10px;width:10px;border:1px solid white;vertical-align:middle;display:inline-block}
+		.recessions{background:#ddd}
+		@media screen and (max-width:700){
+			.tooltip{max-width:160px}
+		}
+	</style>
+</head>
+<div class='tooltip' id='tooltip'>Hi, I'm the tooltip</div>
+<body>
+
+	<div class='text_container'>
+		<h1>Comparing the peformance of major stock market indices in Trump's second term</h1>
+		<h4>A daily-updated data visualization</h4>
+
+		<p>Stock market performance is not a proxy for economic performance, and you shouldn't evaluate the economy on this basis. With that caveat aside, there's a lot of market uncertainty right now and I made this little indexed comparison for myself so I can look and see where we are. It's less painful than checking my 401k! Updates nightly.</p>
+
+		<p>By default, the lines are graphed from each president's inauguration on January 20th. You can click the checkbox below to graph each line from the president's election date instead.<p>
+			<input type="checkbox" id="election" name="election" checked>
+			<label for="election"> Start indexing on election dates</label><br>
+			<input type="checkbox" id="inaug" name="inaug">
+			<label for="election"> Start indexing on inauguration date</label><br>
+	</div>
+
+	<div class='svg_container'>
+		<h3>Dow Jones Industrial Average performance over time</h3>
+		<h4>DJIA indexed to start of each President's term, by day of presidency where market is open</h4>
+		<div class='inline_svgs' id='DJIA_holder'>
+			<svg viewBox='0 0 800 500' xmlns="http://www.w3.org/2000/svg" id='DJIA'></svg>
+		</div>
+	</div>
+
+	<div class='keyholder'>
+		<div class='keylabelholder'><div class='keyline biden1'></div><div class='keylabel'>Biden administration</div></div>
+		<div class='keylabelholder'><div class='keyline trump2'></div><div class='keylabel'>Trump administration</div></div>
+	</div>
+
+	<div class='svg_container'>
+		<h3>Standard and Poor's 500 performance over time</h3>
+		<h4>S&P 500 indexed to start of each President's term, by day of presidency where market is open</h4>
+		<div class='inline_svgs' id='SP500_holder'>
+			<svg viewBox='0 0 800 500' xmlns="http://www.w3.org/2000/svg" id='SP500'></svg>
+		</div>
+	</div>
+
+	<div class='keyholder'>
+		<div class='keylabelholder'><div class='keyline biden1'></div><div class='keylabel'>Biden administration</div></div>
+		<div class='keylabelholder'><div class='keyline trump2'></div><div class='keylabel'>Trump administration</div></div>
+	</div>
+
+	<div class='svg_container'>
+		<h3>NASDAQ performance over time</h3>
+		<h4>NASDAQ indexed to start of each President's term, by day of presidency where market is open</h4>
+		<div class='inline_svgs' id='NASDAQ_holder'>
+			<svg viewBox='0 0 800 500' xmlns="http://www.w3.org/2000/svg" id='NASDAQ'></svg>
+		</div>
+	</div>
+
+	<div class='keyholder'>
+		<div class='keylabelholder'><div class='keyline biden1'></div><div class='keylabel'>Biden administration</div></div>
+		<div class='keylabelholder'><div class='keyline trump2'></div><div class='keylabel'>Trump administration</div></div>
+	</div>
+
+	<div id='intro' class='text_container'>
+		<p>You can find my code for this project <a href="https://github.com/austinclemens/stock_market">on my github</a>.
+	</div>
+
+</body>
+
+<script>
+	// globals
+	var DJIA = Snap('#DJIA')
+	var NASDAQ = Snap('#NASDAQ')
+	var SP500 = Snap('#SP500')
+	var line_colors=["#006ba6","#f6511d"]
+
+	// checkbox handling
+	$(function() {
+		$('#election').click(function() {
+			$("#inaug").prop("checked", false)
+			get_stock_data(1)
+		});
+		$('#inaug').click(function() {
+			$("#election").prop("checked", false)
+			get_stock_data(0)
+	  });
+	});
+
+	// stuff to do once the doc loads
+	$(document).ready(function() {
+		// handlers for hovering over the graph
+		// DJIA.hover(highlight_element,unhighlight_element)
+		// NASDAQ.hover(highlight_element,unhighlight_element)
+		// SP500.hover(highlight_element,unhighlight_element)
+
+		// DJIA.touchstart(highlight_element)
+		// DJIA.touchmove(highlight_element)
+		// DJIA.touchend(unhighlight_element)
+		// SP500.touchstart(highlight_element)
+		// SP500.touchmove(highlight_element)
+		// SP500.touchend(unhighlight_element)
+		// NASDAQ.touchstart(highlight_element)
+		// NASDAQ.touchmove(highlight_element)
+		// NASDAQ.touchend(unhighlight_element)
+
+		get_stock_data(1)
+	})
+
+	// retrieve stock data
+	function get_stock_data(inaug) {
+		$.ajax({
+			url:'DATA/stock_close.csv?'+ Math.random(),
+			type: 'get',
+			datatype: 'html',
+			success: function(response){
+				loadresponse=$.csv.toArrays(response)
+				clear()
+				draw_DJIA(loadresponse,inaug)
+				draw_NASDAQ(loadresponse,inaug)
+				draw_SP500(loadresponse,inaug)
+			}
+		})
+	}
+
+	// for sorting the data by date, sorts less recent to more recent
+	function sortByDate(arr) {
+	  arr.sort((a, b) => {
+	    const dateA = new Date(a[0]);
+	    const dateB = new Date(b[0]);
+	    return dateA - dateB;
+	  });
+	  return arr;
+	}
+
+	// function that takes a start and end date and outputs the data between those dates with a day counter and indexed stock funds
+	// pass inaug=1 to start an inauguaration, inaug=0 to start at election
+	function indexData(data,dates,inaug){
+		start_date=dates[inaug]
+		end_date=dates[2]
+		var temp_data=data.filter(item => {
+			const itemDate = new Date(item[0]);
+			return itemDate >= start_date && itemDate <= end_date
+		});
+
+		var return_data=[]
+		var NASDAQ_base=parseFloat(temp_data[0][1])
+		var SP500_base=parseFloat(temp_data[0][2])
+		var DJIA_base=parseFloat(temp_data[0][3])
+		for(var i=1;i<temp_data.length;i++){
+			NASDAQ_change=100*((parseFloat(temp_data[i][1])-NASDAQ_base)/NASDAQ_base)
+			SP500_change=100*((parseFloat(temp_data[i][2])-SP500_base)/SP500_base)
+			DJIA_change=100*((parseFloat(temp_data[i][3])-DJIA_base)/DJIA_base)
+			new_row=[i,NASDAQ_change,SP500_change,DJIA_change,temp_data[i][0]]
+			return_data.push(new_row)
+		}
+		return return_data
+	}
+
+	// draw DJIA graph
+	function draw_DJIA(data,inaug) {
+		// margins
+		var top_margin=20
+		var bottom_margin=3
+		var left_margin=20
+		var right_margin=0
+
+		var width_text=$('#DJIA_holder').width()
+		var height_text=$('#DJIA_holder').height()
+		var width=800
+		var height=500
+		var width_ratio=width_text/width
+		var height_ratio=height_text/height
+
+		// create data series for each line. First, [elect date, inaug date, end date]
+		var biden1=[new Date('11/02/2020'),new Date('01/20/2021'),new Date('01/20/2025')]
+		var trump2=[new Date('11/02/2024'),new Date('01/20/2025'),new Date('01/20/2029')]
+
+		// sort the dataset by date, then change it into indexed data with day counts
+		var sorted_data=sortByDate(data)
+		var biden1_line=indexData(sorted_data,biden1,inaug)
+		var trump2_line=indexData(sorted_data,trump2,inaug)
+		console.log(sorted_data,biden1_line,trump2_line)
+
+		var lines=[biden1_line,trump2_line]
+
+		// create a list of y and x values to send to the create axis functions
+		var yaxis_values=[]
+		var xaxis_values=[]
+
+		// iterate through lines and push to xaxis/yaxis_values
+		for (var i=0;i<lines.length;i++){
+			for(var j=0;j<lines[i].length;j++){
+				if(Number.isNaN(lines[i][j][1])==false){
+					yaxis_values.push(lines[i][j][3])
+					xaxis_values.push(lines[i][j][0])
+				}
+			}
+		}
+
+		// set mins and maxes
+		var xmin=Math.min(...xaxis_values)
+		var xmax=Math.max(...xaxis_values)
+		var ymin=Math.min(...yaxis_values)
+		var ymax=Math.max(...yaxis_values)
+
+		// get axes
+		xaxis=create_xaxis(xaxis_values)
+		yaxis=create_yaxis(yaxis_values)
+
+		// if axis ticks are higher/lower than mins/maxes, change mins and maxes
+		if(Math.max(...yaxis)>ymax){ymax=Math.max(...yaxis)}
+		if(Math.min(...yaxis)<ymin){ymin=Math.min(...yaxis)}
+		if(Math.max(...xaxis)>xmax){xmax=Math.max(...xaxis)}
+		if(Math.min(...xaxis)<xmin){xmin=Math.min(...xaxis)}
+
+		// coordinates for mins and maxes
+		var xmin_coord=get_coord(xmin,left_margin,width-right_margin,xmin,xmax,0)
+		var xmax_coord=get_coord(xmax,left_margin,width-right_margin,xmin,xmax,0)
+		var ymin_coord=get_coord(ymin,top_margin,height-bottom_margin,ymin,ymax,1)
+		var ymax_coord=get_coord(ymax,top_margin,height-bottom_margin,ymin,ymax,1)
+
+		// x-ticks and labels
+		for (var i=0;i<xaxis.length;i++) {
+			var xcoord=get_coord(xaxis[i],left_margin,width-right_margin,xmin,xmax,0)
+			DJIA.line(xcoord,ymin_coord+3,xcoord,ymin_coord).attr({strokeWidth:1,stroke:'#777'})
+			var label=$('<div>',{css:{'line-height':1,color:'black',display:'block',position:'absolute',left:width_ratio*xcoord,top:height_ratio*(ymin_coord+8),transform:'translate(-50%)','font-size':'80%'}})
+			label.addClass('tlabel')
+			label.html(xaxis[i])
+			$("#DJIA_holder").append(label)
+		}
+
+		// y-lines/axes
+		for (var i=0;i<yaxis.length;i++) {
+			var yval=yaxis[i]
+			var ycoord=get_coord(yval,top_margin,height-bottom_margin,ymin,ymax,1)
+			if (yval==0){
+				DJIA.line(xmin_coord,ycoord,xmax_coord,ycoord).attr({strokeWidth:2,stroke:'#000'})
+			} else {
+				DJIA.line(xmin_coord,ycoord,xmax_coord,ycoord).attr({strokeWidth:1,stroke:'#bbb'})
+			}
+			var label=$('<div>',{css:{'line-height':1,color:'#bbb',display:'block',position:'absolute',left:width_ratio*(xmin_coord-6),top:height_ratio*ycoord,transform:'translate(-100%,-50%)','font-size':'80%'}})
+			label.addClass('tlabel')
+			label.html(yval)
+			$("#DJIA_holder").append(label)
+		}
+
+		// iterate through the various lines
+		for (var i=0;i<lines.length;i++){
+			// create line paths, skip header row
+			var DJIA_path='M'
+
+			for (var j=0;j<lines[i].length;j++){
+				var current_row=lines[i][j]
+				var current_x=current_row[0]
+				var current_value=current_row[3]
+
+				if(Number.isNaN(current_value)==false){
+					var x_coord=get_coord(current_x,left_margin,width-right_margin,xmin,xmax,0).toFixed(1)
+					var value_coord=get_coord(current_value,top_margin,height-bottom_margin,ymin,ymax,1).toFixed(1)
+					DJIA_path=DJIA_path+x_coord+','+value_coord+'L'
+				}
+			}
+			// draw path
+			DJIA_path=DJIA_path.slice(0,-1)
+			DJIA.path(DJIA_path).attr({stroke:line_colors[i],'stroke-width':2,'fill-opacity':0,'pointer-events':'none',opacity:1})
+		}
+	}
+
+	// draw DJIA graph
+	function draw_SP500(data,inaug) {
+		// margins
+		var top_margin=20
+		var bottom_margin=3
+		var left_margin=20
+		var right_margin=0
+
+		var width_text=$('#SP500_holder').width()
+		var height_text=$('#SP500_holder').height()
+		var width=800
+		var height=500
+		var width_ratio=width_text/width
+		var height_ratio=height_text/height
+
+		// create data series for each line. First, [elect date, inaug date, end date]
+		var biden1=[new Date('11/02/2020'),new Date('01/20/2021'),new Date('01/20/2025')]
+		var trump2=[new Date('11/02/2024'),new Date('01/20/2025'),new Date('01/20/2029')]
+
+		// sort the dataset by date, then change it into indexed data with day counts
+		var sorted_data=sortByDate(data)
+		var biden1_line=indexData(sorted_data,biden1,inaug)
+		var trump2_line=indexData(sorted_data,trump2,inaug)
+
+		var lines=[biden1_line,trump2_line]
+
+		// create a list of y and x values to send to the create axis functions
+		var yaxis_values=[]
+		var xaxis_values=[]
+
+		// iterate through lines and push to xaxis/yaxis_values
+		for (var i=0;i<lines.length;i++){
+			for(var j=0;j<lines[i].length;j++){
+				if(Number.isNaN(lines[i][j][1])==false){
+					yaxis_values.push(lines[i][j][2])
+					xaxis_values.push(lines[i][j][0])
+				}
+			}
+		}
+
+		// set mins and maxes
+		var xmin=Math.min(...xaxis_values)
+		var xmax=Math.max(...xaxis_values)
+		var ymin=Math.min(...yaxis_values)
+		var ymax=Math.max(...yaxis_values)
+
+		// get axes
+		xaxis=create_xaxis(xaxis_values)
+		yaxis=create_yaxis(yaxis_values)
+
+		// if axis ticks are higher/lower than mins/maxes, change mins and maxes
+		if(Math.max(...yaxis)>ymax){ymax=Math.max(...yaxis)}
+		if(Math.min(...yaxis)<ymin){ymin=Math.min(...yaxis)}
+		if(Math.max(...xaxis)>xmax){xmax=Math.max(...xaxis)}
+		if(Math.min(...xaxis)<xmin){xmin=Math.min(...xaxis)}
+
+		// coordinates for mins and maxes
+		var xmin_coord=get_coord(xmin,left_margin,width-right_margin,xmin,xmax,0)
+		var xmax_coord=get_coord(xmax,left_margin,width-right_margin,xmin,xmax,0)
+		var ymin_coord=get_coord(ymin,top_margin,height-bottom_margin,ymin,ymax,1)
+		var ymax_coord=get_coord(ymax,top_margin,height-bottom_margin,ymin,ymax,1)
+
+		// x-ticks and labels
+		for (var i=0;i<xaxis.length;i++) {
+			var xcoord=get_coord(xaxis[i],left_margin,width-right_margin,xmin,xmax,0)
+			SP500.line(xcoord,ymin_coord+3,xcoord,ymin_coord).attr({strokeWidth:1,stroke:'#777'})
+			var label=$('<div>',{css:{'line-height':1,color:'black',display:'block',position:'absolute',left:width_ratio*xcoord,top:height_ratio*(ymin_coord+8),transform:'translate(-50%)','font-size':'80%'}})
+			label.addClass('tlabel')
+			label.html(xaxis[i])
+			$("#SP500_holder").append(label)
+		}
+
+		// y-lines/axes
+		for (var i=0;i<yaxis.length;i++) {
+			var yval=yaxis[i]
+			var ycoord=get_coord(yval,top_margin,height-bottom_margin,ymin,ymax,1)
+			if (yval==0){
+				SP500.line(xmin_coord,ycoord,xmax_coord,ycoord).attr({strokeWidth:2,stroke:'#000'})
+			} else {
+				SP500.line(xmin_coord,ycoord,xmax_coord,ycoord).attr({strokeWidth:1,stroke:'#bbb'})
+			}
+			var label=$('<div>',{css:{'line-height':1,color:'#bbb',display:'block',position:'absolute',left:width_ratio*(xmin_coord-6),top:height_ratio*ycoord,transform:'translate(-100%,-50%)','font-size':'80%'}})
+			label.addClass('tlabel')
+			label.html(yval)
+			$("#SP500_holder").append(label)
+		}
+
+		// iterate through the various lines
+		for (var i=0;i<lines.length;i++){
+			// create line paths, skip header row
+			var SP500_path='M'
+
+			for (var j=0;j<lines[i].length;j++){
+				var current_row=lines[i][j]
+				var current_x=current_row[0]
+				var current_value=current_row[2]
+
+				if(Number.isNaN(current_value)==false){
+					var x_coord=get_coord(current_x,left_margin,width-right_margin,xmin,xmax,0).toFixed(1)
+					var value_coord=get_coord(current_value,top_margin,height-bottom_margin,ymin,ymax,1).toFixed(1)
+					SP500_path=SP500_path+x_coord+','+value_coord+'L'
+				}
+			}
+			// draw path
+			SP500_path=SP500_path.slice(0,-1)
+			SP500.path(SP500_path).attr({stroke:line_colors[i],'stroke-width':2,'fill-opacity':0,'pointer-events':'none',opacity:1})
+		}
+	}
+
+	// draw DJIA graph
+	function draw_NASDAQ(data,inaug) {
+		// margins
+		var top_margin=20
+		var bottom_margin=3
+		var left_margin=20
+		var right_margin=0
+
+		var width_text=$('#DJIA_holder').width()
+		var height_text=$('#DJIA_holder').height()
+		var width=800
+		var height=500
+		var width_ratio=width_text/width
+		var height_ratio=height_text/height
+
+		// create data series for each line. First, [elect date, inaug date, end date]
+		var biden1=[new Date('11/02/2020'),new Date('01/20/2021'),new Date('01/20/2025')]
+		var trump2=[new Date('11/02/2024'),new Date('01/20/2025'),new Date('01/20/2029')]
+
+		// sort the dataset by date, then change it into indexed data with day counts
+		var sorted_data=sortByDate(data)
+		var biden1_line=indexData(sorted_data,biden1,inaug)
+		var trump2_line=indexData(sorted_data,trump2,inaug)
+
+		var lines=[biden1_line,trump2_line]
+
+		// create a list of y and x values to send to the create axis functions
+		var yaxis_values=[]
+		var xaxis_values=[]
+
+		// iterate through lines and push to xaxis/yaxis_values
+		for (var i=0;i<lines.length;i++){
+			for(var j=0;j<lines[i].length;j++){
+				if(Number.isNaN(lines[i][j][1])==false){
+					yaxis_values.push(lines[i][j][1])
+					xaxis_values.push(lines[i][j][0])
+				}
+			}
+		}
+
+		// set mins and maxes
+		var xmin=Math.min(...xaxis_values)
+		var xmax=Math.max(...xaxis_values)
+		var ymin=Math.min(...yaxis_values)
+		var ymax=Math.max(...yaxis_values)
+
+		// get axes
+		xaxis=create_xaxis(xaxis_values)
+		yaxis=create_yaxis(yaxis_values)
+
+		// if axis ticks are higher/lower than mins/maxes, change mins and maxes
+		if(Math.max(...yaxis)>ymax){ymax=Math.max(...yaxis)}
+		if(Math.min(...yaxis)<ymin){ymin=Math.min(...yaxis)}
+		if(Math.max(...xaxis)>xmax){xmax=Math.max(...xaxis)}
+		if(Math.min(...xaxis)<xmin){xmin=Math.min(...xaxis)}
+
+		// coordinates for mins and maxes
+		var xmin_coord=get_coord(xmin,left_margin,width-right_margin,xmin,xmax,0)
+		var xmax_coord=get_coord(xmax,left_margin,width-right_margin,xmin,xmax,0)
+		var ymin_coord=get_coord(ymin,top_margin,height-bottom_margin,ymin,ymax,1)
+		var ymax_coord=get_coord(ymax,top_margin,height-bottom_margin,ymin,ymax,1)
+
+		// x-ticks and labels
+		console.log(xaxis)
+		for (var i=0;i<xaxis.length;i++) {
+			var xcoord=get_coord(xaxis[i],left_margin,width-right_margin,xmin,xmax,0)
+			NASDAQ.line(xcoord,ymin_coord+3,xcoord,ymin_coord).attr({strokeWidth:1,stroke:'#777'})
+			var label=$('<div>',{css:{'line-height':1,color:'black',display:'block',position:'absolute',left:width_ratio*xcoord,top:height_ratio*(ymin_coord+8),transform:'translate(-50%)','font-size':'80%'}})
+			label.addClass('tlabel')
+			label.html(xaxis[i])
+			$("#NASDAQ_holder").append(label)
+		}
+
+		// y-lines/axes
+		for (var i=0;i<yaxis.length;i++) {
+			var yval=yaxis[i]
+			var ycoord=get_coord(yval,top_margin,height-bottom_margin,ymin,ymax,1)
+			if (yval==0){
+				NASDAQ.line(xmin_coord,ycoord,xmax_coord,ycoord).attr({strokeWidth:2,stroke:'#000'})
+			} else {
+				NASDAQ.line(xmin_coord,ycoord,xmax_coord,ycoord).attr({strokeWidth:1,stroke:'#bbb'})
+			}
+			var label=$('<div>',{css:{'line-height':1,color:'#bbb',display:'block',position:'absolute',left:width_ratio*(xmin_coord-6),top:height_ratio*ycoord,transform:'translate(-100%,-50%)','font-size':'80%'}})
+			label.addClass('tlabel')
+			label.html(yval)
+			$("#NASDAQ_holder").append(label)
+		}
+
+		// iterate through the various lines
+		for (var i=0;i<lines.length;i++){
+			// create line paths, skip header row
+			var DJIA_path='M'
+
+			for (var j=0;j<lines[i].length;j++){
+				var current_row=lines[i][j]
+				var current_x=current_row[0]
+				var current_value=current_row[1]
+
+				if(Number.isNaN(current_value)==false){
+					var x_coord=get_coord(current_x,left_margin,width-right_margin,xmin,xmax,0).toFixed(1)
+					var value_coord=get_coord(current_value,top_margin,height-bottom_margin,ymin,ymax,1).toFixed(1)
+					DJIA_path=DJIA_path+x_coord+','+value_coord+'L'
+				}
+			}
+			// draw path
+			DJIA_path=DJIA_path.slice(0,-1)
+			NASDAQ.path(DJIA_path).attr({stroke:line_colors[i],'stroke-width':2,'fill-opacity':0,'pointer-events':'none',opacity:1})
+		}
+	}
+
+	function clear(){
+		$('#NASDAQ_holder').find('.tlabel').remove()
+		$('#DJIA_holder').find('.tlabel').remove()
+		$('#SP500_holder').find('.tlabel').remove()
+		NASDAQ.clear()
+		DJIA.clear()
+		SP500.clear()
+	}
+
+	// create an x axis (years) based on data values
+	function create_xaxis(values) {
+		// just count up in 50s
+		var interval=50
+		var axis=[0]
+		while (axis[axis.length-1]+interval<=Math.max(...values)){
+			axis.push(axis[axis.length-1]+interval)
+		}
+		axis.sort((a, b) => (a - b))
+		return axis
+	}
+
+	// create a y axis based on data values
+	// this needs to allow for bigger values and should always include 0
+	function create_yaxis(values) {
+		var preferred_label=8
+		var max=Math.max(...values)
+		var min=Math.min(...values)
+		if (min>0){
+			min=0
+		}
+		var interval=10*Math.ceil(((max-min)/preferred_label)/10)
+
+		// little klugey here to get the starting number
+		var tens_max=Math.floor(max/10)*10
+		if (tens_max % interval!=0){
+			tens_max=0
+			while(tens_max+interval<max){
+				tens_max=tens_max+interval
+			}
+		}
+		if (max-tens_max>=(interval/2)){
+			tens_max=tens_max+interval
+		}
+
+		// and another little klugey thing to get the min
+		var tens_min=Math.floor(min/10)*10
+		if (tens_min > 0) {
+			tens_min==0
+		} else {
+			var temp_max=tens_max
+			while(temp_max-interval>tens_min) {
+				temp_max=temp_max-interval
+			}
+			if(Math.abs(min-temp_max)>=(interval/2)){
+				tens_min=temp_max-interval
+			} else {
+				tens_min=temp_max
+			}
+		}
+
+		var axis=[tens_max]
+		while (axis[axis.length-1]-interval>=tens_min){
+			axis.push(axis[axis.length-1]-interval)
+		}
+		axis.sort((a, b) => (a - b))
+		return axis
+	}
+
+	// get a coordinate for any graph
+	// y is a dummy where 0=x and 1=y
+	function get_coord(value,pixel_min,pixel_max,value_min,value_max,y){
+		var pixel_range=pixel_max-pixel_min
+		var value_range=value_max-value_min
+		var ratio=((value-value_min)/value_range)*pixel_range
+		
+		// y_coord
+		if (y==1){
+			return pixel_range-ratio+pixel_min
+		}
+
+		// x_coord
+		if (y==0){
+			return ratio+pixel_min
+		}
+	}
+
+</script>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
